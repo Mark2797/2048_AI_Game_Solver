@@ -137,7 +137,7 @@ class PlayerAI(BaseAI):
 
     def search(self, grid, alpha, beta, depth, player):
 
-        if time.clock() - start > self.time_limit:
+        if time.perf_counter() - start > self.time_limit:
             return self.evaluate(grid), -1, True
 
         if depth == 0:
@@ -203,7 +203,7 @@ class PlayerAI(BaseAI):
         global start
         best_score, depth = -float('infinity'), 1
 
-        start = time.clock()
+        start = time.perf_counter()
 
         while True:
 
