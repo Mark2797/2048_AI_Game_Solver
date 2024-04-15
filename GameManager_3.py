@@ -105,6 +105,7 @@ class GameManager:
 
             turn = 1 - turn
         print(maxTile)
+        return maxTile
 
     def isGameOver(self):
         return not self.grid.canMove()
@@ -122,16 +123,21 @@ class GameManager:
         self.grid.setCellValue(cell, tileValue)
 
 def main():
-    gameManager = GameManager()
-    playerAI = PlayerAI()
-    computerAI = ComputerAI()
-    displayer = Displayer()
+    result = []
+    n = 2
+    for i in range(n):
+        gameManager = GameManager()
+        playerAI = PlayerAI()
+        computerAI = ComputerAI()
+        displayer = Displayer()
 
-    gameManager.setDisplayer(displayer)
-    gameManager.setPlayerAI(playerAI)
-    gameManager.setComputerAI(computerAI)
+        gameManager.setDisplayer(displayer)
+        gameManager.setPlayerAI(playerAI)
+        gameManager.setComputerAI(computerAI)
 
-    gameManager.start()
+        result.append(gameManager.start())
+    print(result)
+        
 
 if __name__ == '__main__':
     main()

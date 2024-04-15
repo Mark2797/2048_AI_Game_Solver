@@ -16,19 +16,14 @@ class PlayerAI(BaseAI):
         self.emptyWeight = 2.7
         self.maxWeight = 1.0
         self.distanceWeight = 10.0
-
+        
     def evaluate(self, grid):
-
-        empty_cells = len(grid.getAvailableCells())
-        max_tile = grid.getMaxTile()
-
-        smoothness = self.smoothness(grid) * self.smoothnessWeight
-        monotonicity = self.monotonicity(grid) * self.monotonicityWeight
-        emptiness = (math.log(empty_cells) / math.log(2)) * self.emptyWeight if empty_cells != 0 else 0
-        maxvalue = self.get_max_value(max_tile, empty_cells) * self.maxWeight
-        distance = self.distance(grid, max_tile) * self.distanceWeight
-
-        return emptiness + monotonicity + smoothness + maxvalue + distance
+        N1_pattern = [[16, 15, 14, 13], [15, 14, 13, 12], [14, 13, 12, 11], [13, 12, 11, 10]]
+        evaluation = 0
+        for i in range(grid.size):
+            for j in range(grid.size):
+                evaluation += grid.map[i][j] * N1_pattern[i][j]
+        return evaluation / (grid.size * grid.size - len(grid.getAvailableCells()))
 
     @staticmethod
     def distance(grid, max_tile):
@@ -201,7 +196,7 @@ class PlayerAI(BaseAI):
 
     def iterative(self, grid):
         global start
-        best_score, depth = -float('infinity'), 1
+        best_score, depth = -float('infinity'), 4
 
         start = time.perf_counter()
 
