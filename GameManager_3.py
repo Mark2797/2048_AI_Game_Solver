@@ -123,7 +123,9 @@ class GameManager:
         self.grid.setCellValue(cell, tileValue)
 
 def main():
+    # result will be printed after n iterations
     result = []
+    # n is the number of iterations of 2048 executed
     n = 2
     for i in range(n):
         gameManager = GameManager()

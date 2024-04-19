@@ -18,11 +18,14 @@ class PlayerAI(BaseAI):
         self.distanceWeight = 10.0
         
     def evaluate(self, grid):
-        N1_pattern = [[16, 15, 14, 13], [15, 14, 13, 12], [14, 13, 12, 11], [13, 12, 11, 10]]
+        # N-1 Pattern
+        # pattern = [[16, 15, 14, 13], [15, 14, 13, 12], [14, 13, 12, 11], [13, 12, 11, 10]]
+        # S Pattern
+        pattern = [[16, 15, 14, 13], [9, 10, 11, 12], [8, 7, 6, 5], [1, 2, 3, 4]]
         evaluation = 0
         for i in range(grid.size):
             for j in range(grid.size):
-                evaluation += grid.map[i][j] * N1_pattern[i][j]
+                evaluation += grid.map[i][j] * pattern[i][j]
         return evaluation / (grid.size * grid.size - len(grid.getAvailableCells()))
 
     @staticmethod
@@ -196,7 +199,11 @@ class PlayerAI(BaseAI):
 
     def iterative(self, grid):
         global start
+        # for depth 4
         best_score, depth = -float('infinity'), 4
+        
+        # for depth 3
+        # best_score, depth = -float('infinity'), 3
 
         start = time.perf_counter()
 
