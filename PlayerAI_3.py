@@ -19,7 +19,7 @@ class PlayerAI(BaseAI):
 
     def evaluate(self, grid):
 
-        objective_func_choice = 'Mark'
+        objective_func_choice = 'Benjamin'
 
         if (objective_func_choice == 'Mark'):
             # Mark's Objective Function
@@ -35,16 +35,16 @@ class PlayerAI(BaseAI):
 
         else:
             # Benjamin's Objective Function
-            score = 0
             board = grid.map
             weighted_sum = self.N1_pattern_weight(board)
+            score = weighted_sum
             for j in range(len(board)):
                 for i in range(len(board[0])):
                     if (board[i][j] != 0):
                         frac = 	1.0 / (self.move_distance(board, i, j) * self.value_similarity(board, i , j) + 0.01)
                         penalty = 3 * self.diag_penalty(board, i, j) + 4 * self.loc_penalty(board)
 
-                        score += 0.1 * frac * weighted_sum - 0.7 * penalty
+                        score += 0.5 * frac - 0.2 * penalty
             return score
 
 
