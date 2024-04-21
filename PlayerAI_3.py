@@ -16,17 +16,109 @@ class PlayerAI(BaseAI):
         self.emptyWeight = 2.7
         self.maxWeight = 1.0
         self.distanceWeight = 10.0
-        
+
     def evaluate(self, grid):
-        # N-1 Pattern
-        # pattern = [[16, 15, 14, 13], [15, 14, 13, 12], [14, 13, 12, 11], [13, 12, 11, 10]]
-        # S Pattern
-        pattern = [[16, 15, 14, 13], [9, 10, 11, 12], [8, 7, 6, 5], [1, 2, 3, 4]]
-        evaluation = 0
-        for i in range(grid.size):
-            for j in range(grid.size):
-                evaluation += grid.map[i][j] * pattern[i][j]
-        return evaluation / (grid.size * grid.size - len(grid.getAvailableCells()))
+
+        objective_func_choice = 'Mark'
+
+        if (objective_func_choice == 'Mark'):
+            # Mark's Objective Function
+            # N-1 Pattern
+            # pattern = [[16, 15, 14, 13], [15, 14, 13, 12], [14, 13, 12, 11], [13, 12, 11, 10]]
+            # S Pattern
+            pattern = [[16, 15, 14, 13], [9, 10, 11, 12], [8, 7, 6, 5], [1, 2, 3, 4]]
+            evaluation = 0
+            for i in range(grid.size):
+                for j in range(grid.size):
+                    evaluation += grid.map[i][j] * pattern[i][j]
+            return evaluation / (grid.size * grid.size - len(grid.getAvailableCells()))
+
+        else:
+            # Benjamin's Objective Function
+            score = 0
+            board = grid.map
+            weighted_sum = self.N1_pattern_weight(board)
+            for j in range(len(board)):
+                for i in range(len(board[0])):
+                    if (board[i][j] != 0):
+                        frac = 	1.0 / (self.move_distance(board, i, j) * self.value_similarity(board, i , j) + 0.01)
+                        penalty = 3 * self.diag_penalty(board, i, j) + 4 * self.loc_penalty(board)
+
+                        score += 0.1 * frac * weighted_sum - 0.7 * penalty
+            return score
+
+
+
+    # New function: find the move-distance between a tile and all other tiles on the board of the same value
+    def move_distance(self, board, row, col):
+        tile = board[row][col]
+
+        if tile == 0:
+            return 0
+
+        dist = 0
+        for j in range(4):
+            for i in range(4):
+                # if the ith, jth tile has the same value as the tile we're focused on (and isn't that tile itself),
+                if board[i][j] == tile and not (i == row and j == col):
+                    # # if tile of same value shares a row or column, then it will only need one move (ignoring the presence of other tiles)
+                    # dist += 1 + (i != row and j != col)	
+
+                    dist += abs(row - i) + abs(col - j)
+        return dist
+
+    # New function: find the value-similarity for a specific tile
+    def value_similarity(self, board, row, col):
+        # Find the coordinates of all possible neighbors (filter out the following edge cases:    tile itself                           and  negative coordinates                           and  coordinates outside the board)
+        shifts = [-1, 0, 1]
+        neighbor_coords = [[row + shifts[i], col + shifts[j]] for j in range(3) for i in range(3) if (shifts[i] != 0 or shifts[j] != 0) and (row + shifts[i] >= 0 and col + shifts[j] >= 0) and (row + shifts[i] < 4 and col + shifts[j] < 4)]
+
+        output = 0
+        for n in neighbor_coords:
+            if (board[n[0]][n[1]] != 0):
+                output += abs(board[n[0]][n[1]] - board[row][col])
+        return output
+
+    # New function: find weight for each coordinate according to the N1 Pattern and sum weighted tile values
+    def N1_pattern_weight(self, board):
+        N1_pattern_weights = [[16, 15, 14, 13],[15, 14, 13, 12],[14, 13, 12, 11],[13, 12, 11, 10]]
+        sum = 0
+        for j in range(4):
+            for i in range(4):
+                sum += board[i][j] * N1_pattern_weights[i][j]
+        return sum
+
+    # New function: calculate a penalty based on diagonally adjacent tiles
+    def diag_penalty(self, board, row, col):
+        if (board[row][col] == 0):
+            return 0
+
+        shifts = [-1, 0, 1]
+        neighbor_coords = [[row + shifts[i], col + shifts[j]] for j in range(3) for i in range(3) if (shifts[i] != 0 or shifts[j] != 0) and (row + shifts[i] >= 0 and col + shifts[j] >= 0) and (row + shifts[i] < 4 and col + shifts[j] < 4)]
+        
+        output = 0
+        for n in neighbor_coords:
+            if (board[n[0]][n[1]] == board[row][col]) and (abs(n[0] - row) == 1 and abs(n[1] - col) == 1):
+                output += 2
+        return output
+
+    # New function: calculate a penalty based on location of certain-valued tiles
+    def loc_penalty(self, board):
+        middle = [(1,1), (1,2), (2,1), (2,2)]
+        smalls = [2, 4, 8, 16]
+        
+        output = 0
+        for j in range(4):
+            for i in range(4):
+                if (board[i][j] == 0):
+                    continue
+
+                if ((i,j) in middle) and not (board[i][j] in smalls):	# penalize if there are large values in the middle coords
+                    output += 1
+                if not ((i,j) in middle) and (board[i][j] in smalls):	# penalize if there are small values in the outer coords
+                    output += 1
+        return output
+
 
     @staticmethod
     def distance(grid, max_tile):
