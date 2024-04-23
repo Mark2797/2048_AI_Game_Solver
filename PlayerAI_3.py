@@ -46,8 +46,10 @@ class PlayerAI(BaseAI):
         else:
             # Benjamin's Objective Function
             board = grid.map
+
             weighted_sum = self.N1_pattern_weight(board)
-            score = weighted_sum
+            chain_score = self.chain_score(board)
+            score = weighted_sum + chain_score
             for j in range(len(board)):
                 for i in range(len(board[0])):
                     if (board[i][j] != 0):
@@ -57,6 +59,30 @@ class PlayerAI(BaseAI):
                         score += 0.5 * frac - 0.2 * penalty
             return score
 
+
+    # New function: add up values of tiles that are in a chain where the next tile is twice the previous
+    def chain_score(self, board):
+        output = 0
+        for row in range(4):
+            for col in range(4):
+                chain_continues = True
+                row_temp = row
+                col_temp = col
+                while(chain_continues):
+                    # Make array of all horizontal and vertical neighbors (see value_similarity() for logic behind list comprehension)
+                    shifts = [-1, 0, 1]
+                    neighbor_coords = [[row_temp + shifts[i], col_temp + shifts[j]] for j in range(3) for i in range(3) if ((shifts[i] != 0 and shifts[j] == 0) or (shifts[i] == 0 and shifts[j] != 0)) and (row_temp + shifts[i] >= 0 and col_temp + shifts[j] >= 0) and (row_temp + shifts[i] < 4 and col_temp + shifts[j] < 4)]
+                    neighbor_vals = [board[i][j] for (i,j) in neighbor_coords]
+
+                    # Check whether the chain continues and move on to next in chain if so
+                    if (2 * board[row_temp][col_temp] in neighbor_vals) and (board[row_temp][col_temp] != 0):
+                        output += 1
+                        next_in_chain = neighbor_coords[neighbor_vals.index(2 * board[row_temp][col_temp])]
+                        (row_temp, col_temp) = (next_in_chain[0], next_in_chain[1])
+                    else:
+                        chain_continues = False
+
+        return output
 
 
     # New function: find the move-distance between a tile and all other tiles on the board of the same value
