@@ -114,7 +114,7 @@ class GameManager:
         if randint(0,99) < 100 * self.probability:
             return self.possibleNewTiles[0]
         else:
-            return self.possibleNewTiles[1];
+            return self.possibleNewTiles[1]
 
     def insertRandomTile(self):
         tileValue = self.getNewTileValue()
@@ -126,7 +126,7 @@ def main():
     # result will be printed after n iterations
     result = []
     # n is the number of iterations of 2048 executed
-    n = 2
+    n = 1
     for i in range(n):
         gameManager = GameManager()
         playerAI = PlayerAI()
@@ -137,7 +137,11 @@ def main():
         gameManager.setPlayerAI(playerAI)
         gameManager.setComputerAI(computerAI)
 
-        result.append(gameManager.start())
+        temp = gameManager.start()
+        result.append(temp)
+        with open("results.txt", "a") as file:
+            file.write(str(temp) + ", ")
+        file.close()
     print(result)
         
 

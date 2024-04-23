@@ -21,7 +21,18 @@ class PlayerAI(BaseAI):
 
         objective_func_choice = 'Benjamin'
 
-        if (objective_func_choice == 'Mark'):
+        if (objective_func_choice == 'MarkN1'):
+            # Mark's Objective Function
+            # N-1 Pattern
+            pattern = [[16, 15, 14, 13], [15, 14, 13, 12], [14, 13, 12, 11], [13, 12, 11, 10]]
+            # S Pattern
+            # pattern = [[16, 15, 14, 13], [9, 10, 11, 12], [8, 7, 6, 5], [1, 2, 3, 4]]
+            evaluation = 0
+            for i in range(grid.size):
+                for j in range(grid.size):
+                    evaluation += grid.map[i][j] * pattern[i][j]
+            return evaluation / (grid.size * grid.size - len(grid.getAvailableCells()))
+        elif (objective_func_choice == 'MarkS'):
             # Mark's Objective Function
             # N-1 Pattern
             # pattern = [[16, 15, 14, 13], [15, 14, 13, 12], [14, 13, 12, 11], [13, 12, 11, 10]]
@@ -32,7 +43,6 @@ class PlayerAI(BaseAI):
                 for j in range(grid.size):
                     evaluation += grid.map[i][j] * pattern[i][j]
             return evaluation / (grid.size * grid.size - len(grid.getAvailableCells()))
-
         else:
             # Benjamin's Objective Function
             board = grid.map
